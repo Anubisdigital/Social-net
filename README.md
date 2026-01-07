@@ -20,4 +20,4 @@ A simple, media-friendly social network with real OAuth authentication.
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd paper8
+   cd index
