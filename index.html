@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Social Network</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #10b981;
+            --secondary: #059669;
+            --accent: #34d399;
+            --light: #f0fdf4;
+            --dark: #064e3b;
+            --gray: #6b7280;
+            --light-gray: #e5e7eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --sidebar-bg: #d1fae5;
+        }
+
+        body {
+            background-color: #f9fafb;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: bold;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .username {
+            font-weight: 600;
+        }
+
+        /* Main Content Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-top: 30px;
+            margin-bottom: 80px;
+        }
+
+        @media (min-width: 992px) {
+            .main-content {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        /* Post Creation Form */
+        .post-form {
+            background-color: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            border: 1px solid var(--light-gray);
+        }
+
+        .post-form h3 {
+            margin-bottom: 20px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .posts-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Post Card */
+        .post-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--light-gray);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .post-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .post-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            overflow: hidden;
+        }
+
+        .post-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .post-user-info h4 {
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .post-time {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .post-text {
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .media-container {
+            margin: 20px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            max-width: 100%;
+            background-color: var(--light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+        }
+
+        .media-container img {
+            max-width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .media-container iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+            border-radius: 8px;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid var(--light-gray);
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background-color: var(--light);
+        }
+
+        .action-btn.liked {
+            color: var(--danger);
+        }
+
+        .action-btn.reported {
+            color: var(--danger);
+        }
+
+        .like-count, .comment-count, .report-count {
+            font-weight: 600;
+            min-width: 20px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .info-card {
+            background-color: var(--sidebar-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .info-card h3 {
+            color: var(--dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-card ul {
+            list-style-type: none;
+        }
+
+        .info-card li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-card li:last-child {
+            border-bottom: none;
+        }
+
+        .info-card i {
+            color: var(--primary);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            font-size: 0.8rem;
+            border-top: 3px solid var(--primary);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .live-counter {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .counter-value {
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .submit-btn {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .error-message {
+            color: var(--danger);
+            background-color: rgba(239, 68, 68, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .success-message {
+            color: var(--success);
+            background-color: rgba(16, 185, 129, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .warning-message {
+            color: var(--warning);
+            background-color: rgba(245, 158, 11, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        /* Comment Modal */
+        .comment-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .comment-modal.active {
+            display: flex;
+        }
+
+        .comment-modal-content {
+            background-color: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--light-gray);
+        }
+
+        .comment-modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--light);
+            border-radius: 15px 15px 0 0;
+        }
+
+        .comment-modal-header h3 {
+            color: var(--dark);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .comment-modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .comments-list {
+            margin-bottom: 20px;
+        }
+
+        .comment-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            gap: 10px;
+        }
+
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: white;
+            font-weight: bold;
+            overflow: hidden;
+        }
+
+        .comment-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .comment-content {
+            flex-grow: 1;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .comment-text {
+            margin-bottom: 5px;
+            color: var(--gray);
+        }
+
+        .comment-time {
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+
+        .comment-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .comment-input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 20px;
+        }
+
+        .comment-submit {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 0 20px;
+            cursor: pointer;
+        }
+
+        /* Report Modal */
+        .report-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .report-modal.active {
+            display: flex;
+        }
+
+        .report-modal-content {
+            background-color: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            border: 1px solid var(--light-gray);
+        }
+
+        .report-reasons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .report-reason {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .report-reason:hover {
+            background-color: var(--light);
+        }
+
+        .report-reason.selected {
+            border-color: var(--primary);
+            background-color: rgba(16, 185, 129, 0.1);
+        }
+
+        .report-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .report-cancel, .report-submit {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .report-cancel {
+            background-color: var(--light-gray);
+            color: var(--dark);
+        }
+
+        .report-submit {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        /* Reporters List */
+        .reporters-list {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: rgba(239, 68, 68, 0.05);
+            border-radius: 8px;
+            border-left: 4px solid var(--danger);
+        }
+
+        .reporters-list h4 {
+            color: var(--danger);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reporters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .reporter {
+            background-color: rgba(239, 68, 68, 0.1);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            color: var(--danger);
+        }
+
+        /* Badge for reported posts */
+        .reported-badge {
+            background-color: var(--danger);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <i class="fas fa-paper-plane"></i>
+                <span>Social Feed</span>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="username" id="username">Guest</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <div class="left-column">
+                <!-- Post Creation -->
+                <div class="post-form">
+                    <h3><i class="fas fa-pen"></i> Create a New Post</h3>
+                    <form id="createPostForm">
+                        <div class="form-group">
+                            <label for="usernameInput">Your Name</label>
+                            <input type="text" id="usernameInput" class="form-control" placeholder="Enter your name" required minlength="2">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="postText">What's on your mind?</label>
+                            <textarea id="postText" class="form-control" placeholder="Share your thoughts..." required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="mediaLink">Media Link (Optional)</label>
+                            <input type="url" id="mediaLink" class="form-control" placeholder="Paste image, video, or embed link">
+                            <small style="color: var(--gray); margin-top: 5px; display: block;">
+                                Supported: Imgur, YouTube, Vimeo, TikTok, Google Drive, Dropbox, Discord, Unsplash, Pinterest
+                            </small>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-paper-plane"></i> Publish Post
+                        </button>
+                        
+                        <div id="postMessage" class="hidden"></div>
+                    </form>
+                </div>
+                
+                <!-- Feed -->
+                <div class="feed-section">
+                    <h3><i class="fas fa-stream"></i> Recent Posts</h3>
+                    
+                    <div class="posts-container" id="postsContainer">
+                        <div class="post-card">
+                            <p style="text-align: center; color: var(--gray); padding: 30px;">
+                                No posts yet. Be the first to share something!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="info-card">
+                    <h3><i class="fas fa-info-circle"></i> How It Works</h3>
+                    <ul>
+                        <li><i class="fas fa-edit"></i> Create posts with text and media links</li>
+                        <li><i class="fas fa-image"></i> Supports images, videos, and embeds</li>
+                        <li><i class="fas fa-heart"></i> Like, comment, and report posts</li>
+                        <li><i class="fas fa-flag"></i> Posts with 5 reports are highlighted</li>
+                        <li><i class="fas fa-users"></i> See live user count at the bottom</li>
+                    </ul>
+                </div>
+                
+                <div class="info-card">
+                    <h3><i class="fas fa-photo-video"></i> Supported Media</h3>
+                    <ul>
+                        <li><i class="fab fa-youtube"></i> YouTube videos</li>
+                        <li><i class="fab fa-vimeo"></i> Vimeo videos</li>
+                        <li><i class="fab fa-tiktok"></i> TikTok embeds</li>
+                        <li><i class="fas fa-cloud"></i> Cloudinary images</li>
+                        <li><i class="fab fa-google-drive"></i> Google Drive links</li>
+                        <li><i class="fab fa-dropbox"></i> Dropbox links</li>
+                        <li><i class="fab fa-discord"></i> Discord CDN images</li>
+                        <li><i class="fab fa-unsplash"></i> Unsplash images</li>
+                        <li><i class="fab fa-pinterest"></i> Pinterest embeds</li>
+                        <li><i class="fas fa-link"></i> Direct image URLs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comment Modal -->
+    <div class="comment-modal" id="commentModal">
+        <div class="comment-modal-content">
+            <div class="comment-modal-header">
+                <h3><i class="fas fa-comments"></i> Comments</h3>
+                <button class="close-modal" id="closeCommentModal">&times;</button>
+            </div>
+            <div class="comment-modal-body">
+                <div class="comments-list" id="commentsList">
+                    <!-- Comments will be inserted here -->
+                </div>
+                <form class="comment-form" id="commentForm">
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <input type="text" id="commenterName" class="comment-input" placeholder="Your name" required>
+                    </div>
+                    <input type="hidden" id="commentPostId">
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" class="comment-input" id="commentText" placeholder="Write a comment..." required style="flex-grow: 1;">
+                        <button type="submit" class="comment-submit">Post</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="report-modal" id="reportModal">
+        <div class="report-modal-content">
+            <h3><i class="fas fa-flag"></i> Report Post</h3>
+            <p>Please select a reason for reporting this post:</p>
+            
+            <div class="report-reasons" id="reportReasons">
+                <label class="report-reason">
+                    <input type="radio" name="reportReason" value="spam">
+                    <span>Spam or misleading content</span>
+                </label>
+                <label class="report-reason">
+                    <input type="radio" name="reportReason" value="harassment">
+                    <span>Harassment or bullying</span>
+                </label>
+                <label class="report-reason">
+                    <input type="radio" name="reportReason" value="hate">
+                    <span>Hate speech or symbols</span>
+                </label>
+                <label class="report-reason">
+                    <input type="radio" name="reportReason" value="violence">
+                    <span>Violence or dangerous content</span>
+                </label>
+                <label class="report-reason">
+                    <input type="radio" name="reportReason" value="nudity">
+                    <span>Nudity or sexual content</span>
+                </label>
+                <label class="report-reason">
+                    <input type="radio" name="reportReason" value="copyright">
+                    <span>Copyright violation</span>
+                </label>
+                <label class="report-reason">
+                    <input type="radio" name="reportReason" value="other">
+                    <span>Other</span>
+                </label>
+            </div>
+            
+            <div class="form-group" style="margin: 20px 0;">
+                <input type="text" id="reporterName" class="form-control" placeholder="Your name (required)" required>
+            </div>
+            
+            <div class="report-actions">
+                <button type="button" class="report-cancel" id="cancelReport">Cancel</button>
+                <button type="button" class="report-submit" id="submitReport">Submit Report</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer with User Counter -->
+    <footer>
+        <div class="container footer-content">
+            <div class="live-counter">
+                <i class="fas fa-users"></i>
+                <span>Total Users Online: </span>
+                <span class="counter-value" id="userCount">1</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Global state
+        let posts = [];
+        let userCount = 1;
+        let currentPostId = null;
+
+        // DOM Elements
+        const mainContent = document.getElementById('mainContent');
+        const usernameElement = document.getElementById('username');
+        const createPostForm = document.getElementById('createPostForm');
+        const usernameInput = document.getElementById('usernameInput');
+        const postText = document.getElementById('postText');
+        const mediaLink = document.getElementById('mediaLink');
+        const postsContainer = document.getElementById('postsContainer');
+        const postMessage = document.getElementById('postMessage');
+        const userCountElement = document.getElementById('userCount');
+        const commentModal = document.getElementById('commentModal');
+        const closeCommentModal = document.getElementById('closeCommentModal');
+        const commentsList = document.getElementById('commentsList');
+        const commentForm = document.getElementById('commentForm');
+        const commentText = document.getElementById('commentText');
+        const commenterName = document.getElementById('commenterName');
+        const commentPostId = document.getElementById('commentPostId');
+        const reportModal = document.getElementById('reportModal');
+        const reportReasons = document.getElementById('reportReasons');
+        const reporterName = document.getElementById('reporterName');
+        const cancelReport = document.getElementById('cancelReport');
+        const submitReport = document.getElementById('submitReport');
+
+        // Initialize
+        function init() {
+            // Load posts from localStorage or use sample data
+            loadPosts();
+            
+            setupEventListeners();
+            
+            // Auto-refresh user count every 30 seconds (simulated)
+            setInterval(updateUserCount, 30000);
+            
+            // Auto-refresh posts every 10 seconds
+            setInterval(loadPosts, 10000);
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Post form
+            createPostForm.addEventListener('submit', handlePostSubmit);
+            
+            // Comment modal
+            closeCommentModal.addEventListener('click', () => {
+                commentModal.classList.remove('active');
+            });
+            
+            commentForm.addEventListener('submit', handleCommentSubmit);
+            
+            // Report modal
+            cancelReport.addEventListener('click', () => {
+                reportModal.classList.remove('active');
+            });
+            
+            submitReport.addEventListener('click', handleReportSubmit);
+            
+            // Report reason selection
+            reportReasons.addEventListener('change', (e) => {
+                const selected = e.target.closest('.report-reason');
+                document.querySelectorAll('.report-reason').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                selected.classList.add('selected');
+            });
+            
+            // Close modals on outside click
+            window.addEventListener('click', (e) => {
+                if (e.target === commentModal) {
+                    commentModal.classList.remove('active');
+                }
+                if (e.target === reportModal) {
+                    reportModal.classList.remove('active');
+                }
+            });
+        }
+
+        // Update user count (simulated)
+        function updateUserCount() {
+            userCount = Math.max(1, Math.floor(Math.random() * 5) + 1);
+            userCountElement.textContent = userCount;
+        }
+
+        // Handle post submission
+        function handlePostSubmit(e) {
+            e.preventDefault();
+            
+            const username = usernameInput.value.trim();
+            const text = postText.value.trim();
+            const media = mediaLink.value.trim();
+            
+            if (!username || username.length < 2) {
+                showMessage('Please enter a valid name (min 2 characters)', 'error', postMessage);
+                return;
+            }
+            
+            if (!text) {
+                showMessage('Please enter some text', 'error', postMessage);
+                return;
+            }
+            
+            // Create new post
+            const newPost = {
+                id: Date.now().toString(),
+                username: username,
+                text: text,
+                mediaLink: media || null,
+                likes: 0,
+                comments: [],
+                reports: [],
+                likedBy: [],
+                createdAt: new Date().toISOString()
+            };
+            
+            // Save to localStorage
+            savePost(newPost);
+            
+            // Update header username
+            usernameElement.textContent = username;
+            
+            // Clear form
+            postText.value = '';
+            mediaLink.value = '';
+            
+            // Reload posts
+            loadPosts();
+            
+            // Update user count
+            userCount++;
+            userCountElement.textContent = userCount;
+            
+            showMessage('Post published successfully!', 'success', postMessage);
+        }
+
+        // Save post to localStorage
+        function savePost(post) {
+            let allPosts = JSON.parse(localStorage.getItem('socialPosts') || '[]');
+            allPosts.unshift(post); // Add new post at beginning
+            localStorage.setItem('socialPosts', JSON.stringify(allPosts));
+        }
+
+        // Load posts from localStorage
+        function loadPosts() {
+            let allPosts = JSON.parse(localStorage.getItem('socialPosts') || '[]');
+            
+            // If no posts, add some sample posts
+            if (allPosts.length === 0) {
+                allPosts = getSamplePosts();
+                localStorage.setItem('socialPosts', JSON.stringify(allPosts));
+            }
+            
+            posts = allPosts;
+            renderPosts();
+        }
+
+        // Get sample posts
+        function getSamplePosts() {
+            return [
+                {
+                    id: '1',
+                    username: 'Alex Johnson',
+                    text: 'Just discovered this amazing social platform! Love how simple and clean it is.',
+                    mediaLink: '',
+                    likes: 12,
+                    comments: [
+                        { id: '1', username: 'Sarah M.', text: 'I agree! So easy to use.', createdAt: new Date(Date.now() - 3600000).toISOString() }
+                    ],
+                    reports: [],
+                    likedBy: [],
+                    createdAt: new Date(Date.now() - 86400000).toISOString()
+                },
+                {
+                    id: '2',
+                    username: 'Tech Enthusiast',
+                    text: 'Check out this cool tech demo I found on YouTube!',
+                    mediaLink: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                    likes: 25,
+                    comments: [],
+                    reports: [],
+                    likedBy: [],
+                    createdAt: new Date(Date.now() - 172800000).toISOString()
+                },
+                {
+                    id: '3',
+                    username: 'Nature Lover',
+                    text: 'Beautiful sunset from my hike yesterday.',
+                    mediaLink: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4',
+                    likes: 42,
+                    comments: [
+                        { id: '1', username: 'Mike R.', text: 'Stunning view!', createdAt: new Date(Date.now() - 7200000).toISOString() },
+                        { id: '2', username: 'Lisa T.', text: 'Where was this taken?', createdAt: new Date(Date.now() - 3600000).toISOString() }
+                    ],
+                    reports: [],
+                    likedBy: [],
+                    createdAt: new Date(Date.now() - 259200000).toISOString()
+                }
+            ];
+        }
+
+        // Render posts
+        function renderPosts() {
+            if (!posts || posts.length === 0) {
+                postsContainer.innerHTML = `
+                    <div class="post-card">
+                        <p style="text-align: center; color: var(--gray); padding: 30px;">
+                            No posts yet. Be the first to share something!
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+            
+            postsContainer.innerHTML = posts.map(post => {
+                // Check if current user has liked this post
+                const liked = localStorage.getItem(`liked_${post.id}`) === 'true';
+                const reported = localStorage.getItem(`reported_${post.id}`) === 'true';
+                const reportCount = post.reports ? post.reports.length : 0;
+                
+                return `
+                <div class="post-card" data-post-id="${post.id}">
+                    <div class="post-header">
+                        <div class="post-avatar" style="background-color: ${getAvatarColor(post.username)}; color: white;">
+                            ${post.username?.charAt(0)?.toUpperCase() || 'U'}
+                        </div>
+                        <div class="post-user-info">
+                            <h4>${escapeHtml(post.username || 'User')} 
+                                ${reportCount >= 5 ? '<span class="reported-badge">Reported</span>' : ''}
+                            </h4>
+                            <div class="post-time">${formatTimeAgo(new Date(post.createdAt))}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="post-text">${escapeHtml(post.text)}</div>
+                    
+                    ${post.mediaLink ? renderMedia(post.mediaLink) : ''}
+                    
+                    ${reportCount > 0 ? `
+                        <div class="reporters-list">
+                            <h4><i class="fas fa-flag"></i> Reported by ${reportCount} user(s)</h4>
+                            <div class="reporters">
+                                ${post.reports && post.reports.length > 0 ? 
+                                    post.reports.slice(0, 5).map(report => `
+                                        <span class="reporter">${escapeHtml(report.reporterName || 'Anonymous')}</span>
+                                    `).join('') : ''
+                                }
+                                ${reportCount > 5 ? `<span class="reporter">+${reportCount - 5} more</span>` : ''}
+                            </div>
+                            ${reportCount >= 5 ? '<p style="color: var(--danger); margin-top: 10px; font-size: 0.9rem;"><i class="fas fa-exclamation-triangle"></i> This post has been reported 5+ times</p>' : ''}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="post-actions">
+                        <button class="action-btn like-btn ${liked ? 'liked' : ''}" data-post-id="${post.id}">
+                            <i class="fas fa-heart"></i>
+                            <span class="like-count">${post.likes || 0}</span>
+                            <span>Like</span>
+                        </button>
+                        <button class="action-btn comment-btn" data-post-id="${post.id}">
+                            <i class="fas fa-comment"></i>
+                            <span class="comment-count">${post.comments?.length || 0}</span>
+                            <span>Comment</span>
+                        </button>
+                        <button class="action-btn report-btn ${reported ? 'reported' : ''}" data-post-id="${post.id}">
+                            <i class="fas fa-flag"></i>
+                            <span class="report-count">${reportCount}</span>
+                            <span>Report</span>
+                        </button>
+                    </div>
+                </div>
+            `}).join('');
+            
+            // Add event listeners
+            document.querySelectorAll('.like-btn').forEach(btn => {
+                btn.addEventListener('click', handleLike);
+            });
+            
+            document.querySelectorAll('.comment-btn').forEach(btn => {
+                btn.addEventListener('click', handleCommentClick);
+            });
+            
+            document.querySelectorAll('.report-btn').forEach(btn => {
+                btn.addEventListener('click', handleReportClick);
+            });
+        }
+
+        // Render media
+        function renderMedia(url) {
+            if (!url) return '';
+            
+            // Check if it's a video
+            if (url.includes('youtube.com') || url.includes('youtu.be') || 
+                url.includes('vimeo.com') || url.includes('tiktok.com')) {
+                const embedUrl = getEmbedUrl(url);
+                return `<div class="media-container"><iframe src="${embedUrl}" allowfullscreen></iframe></div>`;
+            }
+            
+            // Assume it's an image
+            return `<div class="media-container"><img src="${url}" alt="Media" onerror="this.style.display='none'; this.parentElement.innerHTML='<p style=\\'color: var(--gray); padding: 20px\\'>Could not load media</p>'"></div>`;
+        }
+
+        // Get embed URL
+        function getEmbedUrl(url) {
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+                return videoId ? `https://www.youtube.com/embed/${videoId[1]}` : url;
+            }
+            return url;
+        }
+
+        // Handle like
+        function handleLike(e) {
+            const postId = e.currentTarget.getAttribute('data-post-id');
+            const post = posts.find(p => p.id === postId);
+            
+            if (!post) return;
+            
+            // Check if already liked
+            const liked = localStorage.getItem(`liked_${postId}`) === 'true';
+            
+            if (!liked) {
+                post.likes = (post.likes || 0) + 1;
+                localStorage.setItem(`liked_${postId}`, 'true');
+                showMessage('Post liked!', 'success');
+            } else {
+                post.likes = Math.max(0, (post.likes || 1) - 1);
+                localStorage.setItem(`liked_${postId}`, 'false');
+                showMessage('Like removed', 'success');
+            }
+            
+            // Save updated posts
+            localStorage.setItem('socialPosts', JSON.stringify(posts));
+            
+            // Re-render
+            renderPosts();
+        }
+
+        // Handle comment click
+        function handleCommentClick(e) {
+            const postId = e.currentTarget.getAttribute('data-post-id');
+            currentPostId = postId;
+            commentPostId.value = postId;
+            
+            const post = posts.find(p => p.id === postId);
+            if (!post) return;
+            
+            // Show comments
+            if (post.comments && post.comments.length > 0) {
+                commentsList.innerHTML = post.comments.map(comment => `
+                    <div class="comment-item">
+                        <div class="comment-avatar" style="background-color: ${getAvatarColor(comment.username)}; color: white;">
+                            ${comment.username?.charAt(0)?.toUpperCase() || 'U'}
+                        </div>
+                        <div class="comment-content">
+                            <div class="comment-author">${escapeHtml(comment.username)}</div>
+                            <div class="comment-text">${escapeHtml(comment.text)}</div>
+                            <div class="comment-time">${formatTimeAgo(new Date(comment.createdAt))}</div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                commentsList.innerHTML = '<p style="color: var(--gray); text-align: center;">No comments yet</p>';
+            }
+            
+            commentModal.classList.add('active');
+            commenterName.focus();
+        }
+
+        // Handle comment submission
+        function handleCommentSubmit(e) {
+            e.preventDefault();
+            
+            const commenter = commenterName.value.trim();
+            const text = commentText.value.trim();
+            const postId = commentPostId.value;
+            
+            if (!commenter || commenter.length < 2) {
+                showMessage('Please enter a valid name (min 2 characters)', 'error');
+                return;
+            }
+            
+            if (!text) return;
+            
+            const post = posts.find(p => p.id === postId);
+            if (!post) return;
+            
+            // Add comment
+            if (!post.comments) post.comments = [];
+            
+            post.comments.push({
+                id: Date.now().toString(),
+                username: commenter,
+                text: text,
+                createdAt: new Date().toISOString()
+            });
+            
+            // Save updated posts
+            localStorage.setItem('socialPosts', JSON.stringify(posts));
+            
+            // Clear form
+            commentText.value = '';
+            
+            // Update display
+            loadPosts();
+            handleCommentClick({ currentTarget: { getAttribute: () => postId } });
+            
+            showMessage('Comment added!', 'success');
+        }
+
+        // Handle report click
+        function handleReportClick(e) {
+            const postId = e.currentTarget.getAttribute('data-post-id');
+            currentPostId = postId;
+            
+            // Reset form
+            reporterName.value = '';
+            document.querySelectorAll('.report-reason').forEach(el => {
+                el.classList.remove('selected');
+            });
+            document.querySelectorAll('input[name="reportReason"]').forEach(input => {
+                input.checked = false;
+            });
+            
+            // Show modal
+            reportModal.classList.add('active');
+            reporterName.focus();
+        }
+
+        // Handle report submission
+        function handleReportSubmit() {
+            const selectedReason = document.querySelector('input[name="reportReason"]:checked');
+            const reporter = reporterName.value.trim();
+            
+            if (!selectedReason) {
+                showMessage('Please select a reason', 'error');
+                return;
+            }
+            
+            if (!reporter || reporter.length < 2) {
+                showMessage('Please enter a valid name (min 2 characters)', 'error');
+                return;
+            }
+            
+            const reason = selectedReason.value;
+            const postId = currentPostId;
+            const post = posts.find(p => p.id === postId);
+            
+            if (!post) return;
+            
+            // Add report
+            if (!post.reports) post.reports = [];
+            
+            post.reports.push({
+                reporterName: reporter,
+                reason: reason,
+                reportedAt: new Date().toISOString()
+            });
+            
+            // Mark as reported by current user
+            localStorage.setItem(`reported_${postId}`, 'true');
+            
+            // Save updated posts
+            localStorage.setItem('socialPosts', JSON.stringify(posts));
+            
+            // Update display
+            loadPosts();
+            
+            showMessage('Post reported successfully', 'success');
+            reportModal.classList.remove('active');
+        }
+
+        // Show message
+        function showMessage(text, type, element = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type + '-message';
+            messageDiv.textContent = text;
+            
+            if (element) {
+                element.innerHTML = '';
+                element.appendChild(messageDiv);
+                element.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    element.classList.add('hidden');
+                }, 3000);
+            } else {
+                // Create temporary message
+                const temp = document.createElement('div');
+                temp.style.position = 'fixed';
+                temp.style.top = '20px';
+                temp.style.right = '20px';
+                temp.style.zIndex = '10000';
+                temp.appendChild(messageDiv);
+                document.body.appendChild(temp);
+                
+                setTimeout(() => {
+                    document.body.removeChild(temp);
+                }, 3000);
+            }
+        }
+
+        // Get avatar color
+        function getAvatarColor(id) {
+            const colors = ['#10b981', '#059669', '#34d399', '#0d9488', '#14b8a6', '#0f766e'];
+            let hash = 0;
+            const str = id.toString();
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return colors[Math.abs(hash) % colors.length];
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Format time ago
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            
+            if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
+            if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+            if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+            return 'Just now';
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
