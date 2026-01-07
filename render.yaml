@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: paper8
+    name: index
     env: node
     buildCommand: npm install
     startCommand: node server.js
@@ -12,6 +12,6 @@ services:
       - key: SESSION_SECRET
         generateValue: true
       - key: FRONTEND_URL
-        value: https://paper8.onrender.com
+        value: https://index.onrender.com
       - key: BACKEND_URL
-        value: https://paper8.onrender.com
+        value: https://index.onrender.com
