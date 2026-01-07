@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Social Network</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #10b981;
+            --secondary: #059669;
+            --accent: #34d399;
+            --light: #f0fdf4;
+            --dark: #064e3b;
+            --gray: #6b7280;
+            --light-gray: #e5e7eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --sidebar-bg: #d1fae5;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            background-color: #f9fafb;
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: bold;
+            overflow: hidden;
+        }
+
+        .username {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+            margin: 25px auto 80px;
+            padding: 0 10px;
+        }
+
+        @media (min-width: 768px) {
+            .main-content {
+                grid-template-columns: 2fr 1fr;
+                margin: 30px auto 80px;
+            }
+        }
+
+        /* Post Creation Form */
+        .post-form {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            border: 1px solid var(--light-gray);
+        }
+
+        .post-form h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .posts-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Post Card */
+        .post-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--light-gray);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .post-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .post-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .post-user-info {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .post-user-info h4 {
+            color: var(--dark);
+            margin-bottom: 5px;
+            font-size: 1rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .post-time {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        .post-text {
+            margin-bottom: 20px;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
+        .media-container {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            max-width: 100%;
+            background-color: var(--light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 150px;
+        }
+
+        .media-container img {
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .media-container iframe {
+            width: 100%;
+            height: 350px;
+            border: none;
+            border-radius: 8px;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid var(--light-gray);
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .action-btn:hover {
+            background-color: var(--light);
+        }
+
+        .action-btn.liked {
+            color: var(--danger);
+        }
+
+        .action-btn.reported {
+            color: var(--danger);
+        }
+
+        .like-count, .comment-count, .report-count {
+            font-weight: 600;
+            min-width: 20px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-card {
+            background-color: var(--sidebar-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .info-card h3 {
+            color: var(--dark);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+
+        .info-card ul {
+            list-style-type: none;
+        }
+
+        .info-card li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        .info-card li:last-child {
+            border-bottom: none;
+        }
+
+        .info-card i {
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            font-size: 0.8rem;
+            border-top: 3px solid var(--primary);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .live-counter {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .counter-value {
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .submit-btn {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            opacity: 0.9;
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .error-message {
+            color: var(--danger);
+            background-color: rgba(239, 68, 68, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            font-size: 0.9rem;
+        }
+
+        .success-message {
+            color: var(--success);
+            background-color: rgba(16, 185, 129, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            font-size: 0.9rem;
+        }
+
+        .warning-message {
+            color: var(--warning);
+            background-color: rgba(245, 158, 11, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            font-size: 0.9rem;
+        }
+
+        /* Comment Modal */
+        .comment-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .comment-modal.active {
+            display: flex;
+        }
+
+        .comment-modal-content {
+            background-color: white;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--light-gray);
+        }
+
+        .comment-modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--light);
+            border-radius: 15px 15px 0 0;
+        }
+
+        .comment-modal-header h3 {
+            color: var(--dark);
+            font-size: 1.2rem;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .comment-modal-body {
+            padding: 15px 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .comments-list {
+            margin-bottom: 15px;
+        }
+
+        .comment-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            gap: 10px;
+        }
+
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+
+        .comment-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: white;
+            font-weight: bold;
+            overflow: hidden;
+        }
+
+        .comment-content {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+
+        .comment-text {
+            margin-bottom: 5px;
+            color: var(--gray);
+            font-size: 0.9rem;
+            word-wrap: break-word;
+        }
+
+        .comment-time {
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+
+        .comment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .comment-input {
+            padding: 10px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .comment-submit {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Report Modal */
+        .report-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .report-modal.active {
+            display: flex;
+        }
+
+        .report-modal-content {
+            background-color: white;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+            border: 1px solid var(--light-gray);
+        }
+
+        .report-modal-content h3 {
+            font-size: 1.2rem;
+        }
+
+        .report-reasons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .report-reason {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .report-reason:hover {
+            background-color: var(--light);
+        }
+
+        .report-reason.selected {
+            border-color: var(--primary);
+            background-color: rgba(16, 185, 129, 0.1);
+        }
+
+        .report-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .report-cancel, .report-submit {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .report-cancel {
+            background-color: var(--light-gray);
+            color: var(--dark);
+        }
+
+        .report-submit {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        /* Loading States */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .spinner {
+            border: 3px solid var(--light-gray);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 767px) {
+            .logo span {
+                font-size: 1.2rem;
+            }
+            
+            .post-actions {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .action-btn {
+                flex: 1;
+                min-width: 100px;
+                justify-content: center;
+            }
+            
+            .media-container iframe {
+                height: 250px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .post-form, .post-card {
+                padding: 15px;
+            }
+            
+            .post-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .post-avatar {
+                width: 40px;
+                height: 40px;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            
+            .media-container iframe {
+                height: 200px;
+            }
+        }
+
+        /* Connection Status */
+        .connection-status {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background-color: var(--primary);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 99;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .connection-status.offline {
+            background-color: var(--danger);
+        }
+
+        /* Welcome Message */
+        .welcome-card {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .welcome-card h2 {
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+
+        .welcome-card p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Connection Status -->
+    <div class="connection-status" id="connectionStatus">
+        <i class="fas fa-wifi"></i>
+        <span>Local Mode</span>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <i class="fas fa-paper-plane"></i>
+                <span>Global Social</span>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="username" id="username">Guest</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Welcome Message -->
+        <div class="welcome-card">
+            <h2><i class="fas fa-globe"></i> Welcome to Global Social</h2>
+            <p>Posts are saved locally. To make them visible to everyone, set up Firebase below.</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <div class="left-column">
+                <!-- Post Creation -->
+                <div class="post-form">
+                    <h3><i class="fas fa-pen"></i> Create Post</h3>
+                    <form id="createPostForm">
+                        <div class="form-group">
+                            <label for="usernameInput">Your Name</label>
+                            <input type="text" id="usernameInput" class="form-control" placeholder="Enter your name" required minlength="2">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="postText">What's on your mind?</label>
+                            <textarea id="postText" class="form-control" placeholder="Share your thoughts..." required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="mediaLink">Media Link (Optional)</label>
+                            <input type="url" id="mediaLink" class="form-control" placeholder="Paste image or video URL">
+                            <small style="color: var(--gray); margin-top: 5px; display: block; font-size: 0.85rem;">
+                                YouTube, Imgur, or direct image URLs
+                            </small>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn" id="submitPostBtn">
+                            <i class="fas fa-paper-plane"></i> Publish Post
+                        </button>
+                        
+                        <div id="postMessage" class="hidden"></div>
+                    </form>
+                </div>
+                
+                <!-- Feed -->
+                <div class="feed-section">
+                    <h3><i class="fas fa-stream"></i> Live Feed</h3>
+                    
+                    <div class="posts-container" id="postsContainer">
+                        <!-- Posts will load here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="info-card">
+                    <h3><i class="fas fa-info-circle"></i> How It Works</h3>
+                    <ul>
+                        <li><i class="fas fa-save"></i> Posts saved in your browser</li>
+                        <li><i class="fas fa-heart"></i> Like and comment on posts</li>
+                        <li><i class="fas fa-flag"></i> Report inappropriate content</li>
+                        <li><i class="fas fa-sync-alt"></i> Auto-saves every 5 seconds</li>
+                        <li><i class="fas fa-download"></i> Export/Import posts feature</li>
+                    </ul>
+                </div>
+                
+                <div class="info-card">
+                    <h3><i class="fas fa-bolt"></i> Live Stats</h3>
+                    <ul>
+                        <li><i class="fas fa-users"></i> Online: <span id="onlineCount">1</span></li>
+                        <li><i class="fas fa-newspaper"></i> Total Posts: <span id="totalPosts">0</span></li>
+                        <li><i class="fas fa-heart"></i> Total Likes: <span id="totalLikes">0</span></li>
+                        <li><i class="fas fa-comments"></i> Comments: <span id="totalComments">0</span></li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <h3><i class="fas fa-cloud-upload-alt"></i> Make Posts Global</h3>
+                    <ul>
+                        <li><i class="fas fa-cog"></i> Set up Firebase (FREE)</li>
+                        <li><i class="fas fa-share-alt"></i> Share link with friends</li>
+                        <li><i class="fas fa-globe"></i> Everyone sees same posts</li>
+                        <li><i class="fas fa-database"></i> Data persists forever</li>
+                        <li><button onclick="setupFirebase()" style="margin-top: 10px; width: 100%;" class="submit-btn">
+                            <i class="fas fa-cloud"></i> Setup Instructions
+                        </button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comment Modal -->
+    <div class="comment-modal" id="commentModal">
+        <div class="comment-modal-content">
+            <div class="comment-modal-header">
+                <h3><i class="fas fa-comments"></i> Comments</h3>
+                <button class="close-modal" id="closeCommentModal">&times;</button>
+            </div>
+            <div class="comment-modal-body">
+                <div class="comments-list" id="commentsList">
+                    <!-- Comments load here -->
+                </div>
+                <form class="comment-form" id="commentForm">
+                    <input type="hidden" id="commentPostId">
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <input type="text" id="commenterName" class="comment-input" placeholder="Your name" required>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" class="comment-input" id="commentText" placeholder="Write a comment..." required style="flex-grow: 1;">
+                        <button type="submit" class="comment-submit">Post</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="report-modal" id="reportModal">
+        <div class="report-modal-content">
+            <h3><i class="fas fa-flag"></i> Report Post</h3>
+            <p>Select a reason for reporting:</p>
+            
+            <div class="report-reasons" id="reportReasons">
+                <label class="report-reason">
+                    <input type="radio" name="reportReason" value="spam">
+                    <span>Spam content</span>
+                </label>
+                <label class="report-reason">
+                    <input type="radio" name="reportReason" value="harassment">
+                    <span>Harassment</span>
+                </label>
+                <label class="report-reason">
+                    <input type="radio" name="reportReason" value="hate">
+                    <span>Hate speech</span>
+                </label>
+                <label class="report-reason">
+                    <input type="radio" name="reportReason" value="other">
+                    <span>Other</span>
+                </label>
+            </div>
+            
+            <div class="form-group" style="margin: 15px 0;">
+                <input type="text" id="reporterName" class="form-control" placeholder="Your name (required)" required>
+            </div>
+            
+            <div class="report-actions">
+                <button type="button" class="report-cancel" id="cancelReport">Cancel</button>
+                <button type="button" class="report-submit" id="submitReport">Submit Report</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="live-counter">
+                <i class="fas fa-users"></i>
+                <span>Online: </span>
+                <span class="counter-value" id="userCount">1</span>
+            </div>
+            <div style="font-size: 0.8rem;">
+                <i class="fas fa-sync-alt"></i> Auto-save enabled
+            </div>
+            <button onclick="exportData()" style="background: none; border: none; color: white; cursor: pointer; font-size: 0.8rem;">
+                <i class="fas fa-download"></i> Export Data
+            </button>
+        </div>
+    </footer>
+
+    <!-- Firebase Setup Modal -->
+    <div id="firebaseModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1001; justify-content: center; align-items: center;">
+        <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%;">
+            <h3><i class="fas fa-cloud"></i> Setup Firebase (FREE)</h3>
+            <p>Follow these steps to make posts visible to everyone:</p>
+            <ol style="margin: 15px 0 15px 20px;">
+                <li>Go to <a href="https://firebase.google.com" target="_blank">Firebase Console</a></li>
+                <li>Create a new project</li>
+                <li>Enable Firestore Database</li>
+                <li>Copy your Firebase config</li>
+                <li>Paste it in the code below</li>
+            </ol>
+            <textarea id="firebaseConfig" style="width: 100%; height: 150px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-family: monospace; font-size: 12px;" placeholder="Paste your Firebase config here...">
+// Your web app's Firebase configuration
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+};</textarea>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button onclick="saveFirebaseConfig()" class="submit-btn" style="margin: 0;">Save & Enable</button>
+                <button onclick="document.getElementById('firebaseModal').style.display = 'none'" style="padding: 10px 20px; border: none; background: #e5e7eb; border-radius: 8px; cursor: pointer;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =====================
+        // GLOBAL SOCIAL NETWORK
+        // =====================
+        
+        // Firebase configuration (you can update this later)
+        let firebaseConfig = null;
+        let firebaseApp = null;
+        let db = null;
+        let useFirebase = false;
+        
+        // Application state
+        let posts = [];
+        let currentUser = null;
+        let userId = null;
+        let currentPostId = null;
+        
+        // DOM Elements
+        const postsContainer = document.getElementById('postsContainer');
+        const createPostForm = document.getElementById('createPostForm');
+        const usernameInput = document.getElementById('usernameInput');
+        const postText = document.getElementById('postText');
+        const mediaLink = document.getElementById('mediaLink');
+        const submitPostBtn = document.getElementById('submitPostBtn');
+        const connectionStatus = document.getElementById('connectionStatus');
+        
+        // Initialize application
+        function init() {
+            console.log('Initializing Global Social Network...');
+            
+            // Generate user ID
+            userId = generateUserId();
+            console.log('User ID:', userId);
+            
+            // Load Firebase config if saved
+            loadFirebaseConfig();
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Load posts
+            loadPosts();
+            
+            // Auto-save every 5 seconds
+            setInterval(savePostsToLocalStorage, 5000);
+            
+            // Update stats periodically
+            setInterval(updateStats, 10000);
+            
+            console.log('Application initialized successfully');
+        }
+        
+        // Generate unique user ID
+        function generateUserId() {
+            let storedId = localStorage.getItem('social_user_id');
+            if (storedId) {
+                return storedId;
+            }
+            
+            const newId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('social_user_id', newId);
+            return newId;
+        }
+        
+        // Setup Firebase
+        async function setupFirebase() {
+            document.getElementById('firebaseModal').style.display = 'flex';
+        }
+        
+        // Save Firebase config
+        function saveFirebaseConfig() {
+            const configText = document.getElementById('firebaseConfig').value;
+            
+            try {
+                // Extract config from the text
+                const configMatch = configText.match(/const firebaseConfig = ({[\s\S]*?});/);
+                if (!configMatch) {
+                    alert('Invalid Firebase config format. Please copy exactly from Firebase Console.');
+                    return;
+                }
+                
+                // Parse the config
+                const config = eval('(' + configMatch[1] + ')');
+                
+                // Validate config
+                if (!config.apiKey || !config.projectId) {
+                    alert('Invalid Firebase config. Missing required fields.');
+                    return;
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('firebase_config', JSON.stringify(config));
+                
+                // Initialize Firebase
+                initializeFirebase(config);
+                
+                // Close modal
+                document.getElementById('firebaseModal').style.display = 'none';
+                
+                alert('Firebase configured successfully! Posts will now sync to the cloud.');
+                
+            } catch (error) {
+                console.error('Error saving Firebase config:', error);
+                alert('Error saving config. Please check the format.');
+            }
+        }
+        
+        // Load Firebase config from localStorage
+        function loadFirebaseConfig() {
+            try {
+                const savedConfig = localStorage.getItem('firebase_config');
+                if (savedConfig) {
+                    const config = JSON.parse(savedConfig);
+                    initializeFirebase(config);
+                }
+            } catch (error) {
+                console.error('Error loading Firebase config:', error);
+            }
+        }
+        
+        // Initialize Firebase
+        function initializeFirebase(config) {
+            try {
+                firebaseConfig = config;
+                firebaseApp = firebase.initializeApp(firebaseConfig, 'socialApp');
+                db = firebase.firestore();
+                useFirebase = true;
+                
+                console.log('Firebase initialized successfully');
+                connectionStatus.innerHTML = '<i class="fas fa-cloud"></i> <span>Cloud Connected</span>';
+                connectionStatus.style.backgroundColor = '#10b981';
+                
+                // Sync local posts to Firebase
+                syncLocalPostsToFirebase();
+                
+                // Subscribe to real-time updates
+                subscribeToFirebaseUpdates();
+                
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                useFirebase = false;
+            }
+        }
+        
+        // Sync local posts to Firebase
+        async function syncLocalPostsToFirebase() {
+            if (!useFirebase || !db) return;
+            
+            try {
+                const localPosts = JSON.parse(localStorage.getItem('social_posts') || '[]');
+                
+                for (const post of localPosts) {
+                    // Check if post exists in Firebase
+                    const docRef = db.collection('posts').doc(post.id);
+                    const doc = await docRef.get();
+                    
+                    if (!doc.exists) {
+                        // Upload to Firebase
+                        await docRef.set({
+                            userId: post.userId,
+                            username: post.username,
+                            text: post.text,
+                            mediaLink: post.mediaLink || null,
+                            likes: post.likes || 0,
+                            comments: post.comments || [],
+                            reports: post.reports || [],
+                            createdAt: post.createdAt || new Date().toISOString(),
+                            updatedAt: new Date().toISOString()
+                        });
+                        console.log('Synced post to Firebase:', post.id);
+                    }
+                }
+                
+                // Load posts from Firebase
+                await loadPostsFromFirebase();
+                
+            } catch (error) {
+                console.error('Error syncing to Firebase:', error);
+            }
+        }
+        
+        // Load posts from Firebase
+        async function loadPostsFromFirebase() {
+            if (!useFirebase || !db) return;
+            
+            try {
+                const snapshot = await db.collection('posts')
+                    .orderBy('createdAt', 'desc')
+                    .limit(50)
+                    .get();
+                
+                posts = [];
+                snapshot.forEach(doc => {
+                    const post = doc.data();
+                    post.id = doc.id;
+                    posts.push(post);
+                });
+                
+                console.log('Loaded posts from Firebase:', posts.length);
+                renderPosts();
+                updateStats();
+                
+            } catch (error) {
+                console.error('Error loading from Firebase:', error);
+                // Fallback to local storage
+                loadPostsFromLocalStorage();
+            }
+        }
+        
+        // Subscribe to Firebase real-time updates
+        function subscribeToFirebaseUpdates() {
+            if (!useFirebase || !db) return;
+            
+            db.collection('posts')
+                .orderBy('createdAt', 'desc')
+                .limit(50)
+                .onSnapshot(snapshot => {
+                    console.log('Firebase update received');
+                    const updatedPosts = [];
+                    snapshot.forEach(doc => {
+                        const post = doc.data();
+                        post.id = doc.id;
+                        updatedPosts.push(post);
+                    });
+                    
+                    // Update only if there are changes
+                    if (JSON.stringify(posts) !== JSON.stringify(updatedPosts)) {
+                        posts = updatedPosts;
+                        renderPosts();
+                        updateStats();
+                        showMessage('Feed updated in real-time!', 'success');
+                    }
+                }, error => {
+                    console.error('Firebase subscription error:', error);
+                });
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Post form submission
+            createPostForm.addEventListener('submit', handlePostSubmit);
+            
+            // Comment modal
+            document.getElementById('closeCommentModal').addEventListener('click', () => {
+                document.getElementById('commentModal').classList.remove('active');
+            });
+            
+            document.getElementById('commentForm').addEventListener('submit', handleCommentSubmit);
+            
+            // Report modal
+            document.getElementById('cancelReport').addEventListener('click', () => {
+                document.getElementById('reportModal').classList.remove('active');
+            });
+            
+            document.getElementById('submitReport').addEventListener('click', handleReportSubmit);
+            
+            // Report reason selection
+            document.getElementById('reportReasons').addEventListener('change', (e) => {
+                const selected = e.target.closest('.report-reason');
+                document.querySelectorAll('.report-reason').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                selected.classList.add('selected');
+            });
+            
+            // Close modals on outside click
+            window.addEventListener('click', (e) => {
+                if (e.target === document.getElementById('commentModal')) {
+                    document.getElementById('commentModal').classList.remove('active');
+                }
+                if (e.target === document.getElementById('reportModal')) {
+                    document.getElementById('reportModal').classList.remove('active');
+                }
+            });
+            
+            // Update username when typing
+            usernameInput.addEventListener('input', () => {
+                const name = usernameInput.value.trim();
+                if (name.length >= 2) {
+                    document.getElementById('username').textContent = name;
+                    currentUser = name;
+                    localStorage.setItem('current_username', name);
+                }
+            });
+            
+            // Load saved username
+            const savedName = localStorage.getItem('current_username');
+            if (savedName) {
+                usernameInput.value = savedName;
+                document.getElementById('username').textContent = savedName;
+                currentUser = savedName;
+            }
+        }
+        
+        // Load posts
+        function loadPosts() {
+            console.log('Loading posts...');
+            
+            if (useFirebase && db) {
+                loadPostsFromFirebase();
+            } else {
+                loadPostsFromLocalStorage();
+            }
+        }
+        
+        // Load posts from localStorage
+        function loadPostsFromLocalStorage() {
+            const storedPosts = localStorage.getItem('social_posts');
+            
+            if (storedPosts) {
+                posts = JSON.parse(storedPosts);
+                console.log('Loaded posts from localStorage:', posts.length);
+            } else {
+                posts = [];
+                console.log('No posts found in localStorage');
+            }
+            
+            renderPosts();
+            updateStats();
+        }
+        
+        // Save posts to localStorage
+        function savePostsToLocalStorage() {
+            try {
+                localStorage.setItem('social_posts', JSON.stringify(posts));
+                console.log('Posts saved to localStorage:', posts.length);
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+            }
+        }
+        
+        // Handle post submission
+        async function handlePostSubmit(e) {
+            e.preventDefault();
+            
+            const username = usernameInput.value.trim();
+            const text = postText.value.trim();
+            const media = mediaLink.value.trim();
+            
+            if (!username || username.length < 2) {
+                showMessage('Please enter a valid name (min 2 characters)', 'error');
+                return;
+            }
+            
+            if (!text) {
+                showMessage('Please enter some text', 'error');
+                return;
+            }
+            
+            // Disable submit button
+            submitPostBtn.disabled = true;
+            submitPostBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing...';
+            
+            try {
+                const postId = 'post_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                
+                const newPost = {
+                    id: postId,
+                    userId: userId,
+                    username: username,
+                    text: text,
+                    mediaLink: media || null,
+                    likes: 0,
+                    likedBy: [],
+                    comments: [],
+                    reports: [],
+                    createdAt: new Date().toISOString(),
+                    isNew: true
+                };
+                
+                // Save to Firebase if enabled
+                if (useFirebase && db) {
+                    await db.collection('posts').doc(postId).set({
+                        ...newPost,
+                        updatedAt: new Date().toISOString()
+                    });
+                    console.log('Post saved to Firebase:', postId);
+                }
+                
+                // Add to local posts
+                posts.unshift(newPost);
+                
+                // Save to localStorage
+                savePostsToLocalStorage();
+                
+                // Success message
+                if (useFirebase) {
+                    showMessage('Post published to the cloud! Everyone can see it.', 'success');
+                } else {
+                    showMessage('Post saved locally. Setup Firebase to share with others.', 'warning');
+                }
+                
+                // Clear form
+                postText.value = '';
+                mediaLink.value = '';
+                
+                // Update current user
+                currentUser = username;
+                document.getElementById('username').textContent = username;
+                localStorage.setItem('current_username', username);
+                
+                // Render posts
+                renderPosts();
+                updateStats();
+                
+                // Show notification
+                showNotification('New post created!');
+                
+            } catch (error) {
+                console.error('Error saving post:', error);
+                showMessage('Error saving post. Please try again.', 'error');
+            } finally {
+                // Re-enable submit button
+                submitPostBtn.disabled = false;
+                submitPostBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Publish Post';
+            }
+        }
+        
+        // Render posts
+        function renderPosts() {
+            if (!posts || posts.length === 0) {
+                postsContainer.innerHTML = `
+                    <div class="post-card">
+                        <p style="text-align: center; color: var(--gray); padding: 30px;">
+                            No posts yet. Be the first to share something!
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+            
+            postsContainer.innerHTML = posts.map(post => {
+                const liked = post.likedBy && post.likedBy.includes(userId);
+                const likeCount = post.likes || 0;
+                const commentCount = post.comments ? post.comments.length : 0;
+                const reportCount = post.reports ? post.reports.length : 0;
+                const isNew = post.isNew && Date.now() - new Date(post.createdAt).getTime() < 60000;
+                
+                return `
+                <div class="post-card ${isNew ? 'new-post' : ''}" data-post-id="${post.id}" ${isNew ? 'style="border-left: 4px solid var(--primary);"' : ''}>
+                    <div class="post-header">
+                        <div class="post-avatar" style="background-color: ${getAvatarColor(post.username)}; color: white;">
+                            ${post.username?.charAt(0)?.toUpperCase() || 'U'}
+                        </div>
+                        <div class="post-user-info">
+                            <h4>
+                                ${escapeHtml(post.username || 'User')} 
+                                ${reportCount >= 5 ? '<span class="reported-badge">Reported</span>' : ''}
+                                ${isNew ? '<span style="color: var(--primary); font-size: 0.8rem;"> • New</span>' : ''}
+                            </h4>
+                            <div class="post-time">${formatTimeAgo(new Date(post.createdAt))}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="post-text">${escapeHtml(post.text)}</div>
+                    
+                    ${post.mediaLink ? renderMedia(post.mediaLink) : ''}
+                    
+                    <div class="post-actions">
+                        <button class="action-btn like-btn ${liked ? 'liked' : ''}" data-post-id="${post.id}">
+                            <i class="fas fa-heart"></i>
+                            <span class="like-count">${likeCount}</span>
+                            <span>Like</span>
+                        </button>
+                        <button class="action-btn comment-btn" data-post-id="${post.id}">
+                            <i class="fas fa-comment"></i>
+                            <span class="comment-count">${commentCount}</span>
+                            <span>Comment</span>
+                        </button>
+                        <button class="action-btn report-btn" data-post-id="${post.id}">
+                            <i class="fas fa-flag"></i>
+                            <span class="report-count">${reportCount}</span>
+                            <span>Report</span>
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+            
+            // Add event listeners
+            document.querySelectorAll('.like-btn').forEach(btn => {
+                btn.addEventListener('click', handleLike);
+            });
+            
+            document.querySelectorAll('.comment-btn').forEach(btn => {
+                btn.addEventListener('click', handleCommentClick);
+            });
+            
+            document.querySelectorAll('.report-btn').forEach(btn => {
+                btn.addEventListener('click', handleReportClick);
+            });
+            
+            // Remove new post flag
+            posts.forEach(post => delete post.isNew);
+        }
+        
+        // Handle like
+        async function handleLike(e) {
+            const postId = e.currentTarget.dataset.postId;
+            const post = posts.find(p => p.id === postId);
+            
+            if (!post) return;
+            
+            const liked = post.likedBy && post.likedBy.includes(userId);
+            
+            try {
+                if (liked) {
+                    // Remove like
+                    post.likes = Math.max(0, (post.likes || 1) - 1);
+                    post.likedBy = post.likedBy.filter(id => id !== userId);
+                    e.currentTarget.classList.remove('liked');
+                } else {
+                    // Add like
+                    post.likes = (post.likes || 0) + 1;
+                    if (!post.likedBy) post.likedBy = [];
+                    post.likedBy.push(userId);
+                    e.currentTarget.classList.add('liked');
+                }
+                
+                // Update count
+                e.currentTarget.querySelector('.like-count').textContent = post.likes;
+                
+                // Save to Firebase if enabled
+                if (useFirebase && db) {
+                    await db.collection('posts').doc(postId).update({
+                        likes: post.likes,
+                        likedBy: post.likedBy,
+                        updatedAt: new Date().toISOString()
+                    });
+                }
+                
+                // Save locally
+                savePostsToLocalStorage();
+                updateStats();
+                
+            } catch (error) {
+                console.error('Error handling like:', error);
+                showMessage('Error updating like. Please try again.', 'error');
+            }
+        }
+        
+        // Handle comment click
+        function handleCommentClick(e) {
+            const postId = e.currentTarget.dataset.postId;
+            currentPostId = postId;
+            
+            const post = posts.find(p => p.id === postId);
+            if (!post) return;
+            
+            // Display comments
+            const comments = post.comments || [];
+            displayComments(comments);
+            
+            // Show modal
+            document.getElementById('commentModal').classList.add('active');
+            document.getElementById('commenterName').focus();
+        }
+        
+        // Display comments in modal
+        function displayComments(comments) {
+            const commentsList = document.getElementById('commentsList');
+            
+            if (!comments || comments.length === 0) {
+                commentsList.innerHTML = '<p style="text-align: center; color: var(--gray);">No comments yet</p>';
+                return;
+            }
+            
+            commentsList.innerHTML = comments.map(comment => `
+                <div class="comment-item">
+                    <div class="comment-avatar" style="background-color: ${getAvatarColor(comment.username)}; color: white;">
+                        ${comment.username?.charAt(0)?.toUpperCase() || 'U'}
+                    </div>
+                    <div class="comment-content">
+                        <div class="comment-author">${escapeHtml(comment.username)}</div>
+                        <div class="comment-text">${escapeHtml(comment.text)}</div>
+                        <div class="comment-time">${formatTimeAgo(new Date(comment.createdAt))}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Handle comment submission
+        async function handleCommentSubmit(e) {
+            e.preventDefault();
+            
+            const commenter = document.getElementById('commenterName').value.trim();
+            const text = document.getElementById('commentText').value.trim();
+            
+            if (!commenter || commenter.length < 2) {
+                showMessage('Please enter a valid name (min 2 characters)', 'error');
+                return;
+            }
+            
+            if (!text) return;
+            
+            const post = posts.find(p => p.id === currentPostId);
+            if (!post) return;
+            
+            try {
+                const newComment = {
+                    id: 'comment_' + Date.now(),
+                    username: commenter,
+                    text: text,
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Add to post
+                if (!post.comments) post.comments = [];
+                post.comments.push(newComment);
+                
+                // Update comment count
+                const postElement = document.querySelector(`[data-post-id="${currentPostId}"]`);
+                if (postElement) {
+                    const commentCountElement = postElement.querySelector('.comment-count');
+                    commentCountElement.textContent = post.comments.length;
+                }
+                
+                // Save to Firebase if enabled
+                if (useFirebase && db) {
+                    await db.collection('posts').doc(currentPostId).update({
+                        comments: post.comments,
+                        updatedAt: new Date().toISOString()
+                    });
+                }
+                
+                // Save locally
+                savePostsToLocalStorage();
+                updateStats();
+                
+                // Clear form and update display
+                document.getElementById('commentText').value = '';
+                displayComments(post.comments);
+                
+                showMessage('Comment added successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error saving comment:', error);
+                showMessage('Error saving comment. Please try again.', 'error');
+            }
+        }
+        
+        // Handle report click
+        function handleReportClick(e) {
+            const postId = e.currentTarget.dataset.postId;
+            currentPostId = postId;
+            
+            // Reset form
+            document.getElementById('reporterName').value = currentUser || '';
+            document.querySelectorAll('.report-reason').forEach(el => {
+                el.classList.remove('selected');
+            });
+            document.querySelectorAll('input[name="reportReason"]').forEach(input => {
+                input.checked = false;
+            });
+            
+            // Show modal
+            document.getElementById('reportModal').classList.add('active');
+        }
+        
+        // Handle report submission
+        async function handleReportSubmit() {
+            const selectedReason = document.querySelector('input[name="reportReason"]:checked');
+            const reporter = document.getElementById('reporterName').value.trim() || currentUser || 'Anonymous';
+            
+            if (!selectedReason) {
+                showMessage('Please select a reason', 'error');
+                return;
+            }
+            
+            if (!reporter || reporter.length < 2) {
+                showMessage('Please enter a valid name', 'error');
+                return;
+            }
+            
+            const post = posts.find(p => p.id === currentPostId);
+            if (!post) return;
+            
+            try {
+                const report = {
+                    reporterName: reporter,
+                    reason: selectedReason.value,
+                    reportedAt: new Date().toISOString()
+                };
+                
+                // Add to post
+                if (!post.reports) post.reports = [];
+                post.reports.push(report);
+                
+                // Update report count
+                const postElement = document.querySelector(`[data-post-id="${currentPostId}"]`);
+                if (postElement) {
+                    const reportCountElement = postElement.querySelector('.report-count');
+                    reportCountElement.textContent = post.reports.length;
+                    
+                    // Add reported badge if 5+ reports
+                    if (post.reports.length >= 5) {
+                        const usernameElement = postElement.querySelector('.post-user-info h4');
+                        if (!usernameElement.innerHTML.includes('reported-badge')) {
+                            usernameElement.innerHTML += ' <span class="reported-badge">Reported</span>';
+                        }
+                    }
+                }
+                
+                // Save to Firebase if enabled
+                if (useFirebase && db) {
+                    await db.collection('posts').doc(currentPostId).update({
+                        reports: post.reports,
+                        updatedAt: new Date().toISOString()
+                    });
+                }
+                
+                // Save locally
+                savePostsToLocalStorage();
+                
+                showMessage('Post reported successfully', 'success');
+                document.getElementById('reportModal').classList.remove('active');
+                
+            } catch (error) {
+                console.error('Error saving report:', error);
+                showMessage('Error saving report. Please try again.', 'error');
+            }
+        }
+        
+        // Update stats
+        function updateStats() {
+            let totalLikes = 0;
+            let totalComments = 0;
+            
+            posts.forEach(post => {
+                totalLikes += post.likes || 0;
+                totalComments += (post.comments ? post.comments.length : 0);
+            });
+            
+            document.getElementById('totalPosts').textContent = posts.length;
+            document.getElementById('totalLikes').textContent = totalLikes;
+            document.getElementById('totalComments').textContent = totalComments;
+            
+            // Update online count (simulated)
+            const onlineCount = Math.max(1, Math.floor(Math.random() * 10) + 1);
+            document.getElementById('onlineCount').textContent = onlineCount;
+            document.getElementById('userCount').textContent = onlineCount;
+        }
+        
+        // Export data
+        function exportData() {
+            const data = {
+                posts: posts,
+                exportDate: new Date().toISOString(),
+                version: '1.0'
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'social-network-data.json';
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showMessage('Data exported successfully!', 'success');
+        }
+        
+        // Render media
+        function renderMedia(url) {
+            if (!url) return '';
+            
+            // Check if it's a video
+            if (url.includes('youtube.com') || url.includes('youtu.be') || 
+                url.includes('vimeo.com') || url.includes('tiktok.com')) {
+                const embedUrl = getEmbedUrl(url);
+                return `<div class="media-container"><iframe src="${embedUrl}" allowfullscreen></iframe></div>`;
+            }
+            
+            // Assume it's an image
+            return `<div class="media-container"><img src="${url}" alt="Media" onerror="this.style.display='none'; this.parentElement.innerHTML='<p style=\\'color: var(--gray); padding: 20px\\'>Could not load media</p>'"></div>`;
+        }
+        
+        // Get embed URL
+        function getEmbedUrl(url) {
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+                return videoId ? `https://www.youtube.com/embed/${videoId[1]}` : url;
+            }
+            return url;
+        }
+        
+        // Utility functions
+        function getAvatarColor(id) {
+            const colors = ['#10b981', '#059669', '#34d399', '#0d9488', '#14b8a6', '#0f766e'];
+            let hash = 0;
+            const str = id.toString();
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return colors[Math.abs(hash) % colors.length];
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            
+            if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
+            if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+            if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+            return 'Just now';
+        }
+        
+        function showMessage(text, type) {
+            // Remove existing messages
+            const existing = document.querySelectorAll('.temp-message');
+            existing.forEach(el => el.remove());
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type + '-message temp-message';
+            messageDiv.textContent = text;
+            messageDiv.style.position = 'fixed';
+            messageDiv.style.top = '70px';
+            messageDiv.style.left = '50%';
+            messageDiv.style.transform = 'translateX(-50%)';
+            messageDiv.style.zIndex = '10000';
+            messageDiv.style.maxWidth = '90%';
+            messageDiv.style.textAlign = 'center';
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    document.body.removeChild(messageDiv);
+                }
+            }, 3000);
+        }
+        
+        function showNotification(text) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `
+                <h4><i class="fas fa-bell"></i> Update</h4>
+                <p>${text}</p>
+            `;
+            notification.style.position = 'fixed';
+            notification.style.top = '70px';
+            notification.style.right = '20px';
+            notification.style.background = 'white';
+            notification.style.padding = '15px';
+            notification.style.borderRadius = '10px';
+            notification.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
+            notification.style.zIndex = '1001';
+            notification.style.borderLeft = '4px solid var(--primary)';
+            notification.style.maxWidth = '300px';
+            notification.style.animation = 'slideIn 0.3s ease';
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+        
+        // Initialize on DOM load
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
