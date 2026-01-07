@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: paper8
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://paper8.onrender.com
+      - key: BACKEND_URL
+        value: https://paper8.onrender.com
