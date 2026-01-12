@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarbonKind - Green Social Network</title>
+    <link rel="icon" href="anubis.png" type="image/png">
+    <style>
+        /* ===== RESET & BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        :root {
+            --primary-green: #2e7d32;
+            --light-green: #4caf50;
+            --dark-green: #1b5e20;
+            --accent-green: #81c784;
+            --background: #f5f9f6;
+            --card-bg: #ffffff;
+            --text-primary: #263238;
+            --text-secondary: #546e7a;
+            --border-color: #c8e6c9;
+            --like-color: #e53935;
+            --report-color: #ff9800;
+            --shadow: 0 4px 12px rgba(46, 125, 50, 0.1);
+            --radius: 12px;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .logo h1 {
+            color: var(--primary-green);
+            font-size: 2.5rem;
+            font-weight: 800;
+        }
+
+        .tagline {
+            color: var(--text-secondary);
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
+        /* ===== NAVIGATION ===== */
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            background: var(--primary-green);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-btn:hover {
+            background: var(--dark-green);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.logout {
+            background: #d32f2f;
+        }
+
+        .nav-btn.logout:hover {
+            background: #b71c1c;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        @media (min-width: 768px) {
+            .main-content {
+                grid-template-columns: 300px 1fr;
+            }
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            height: fit-content;
+        }
+
+        .sidebar-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .sidebar-section h3 {
+            color: var(--primary-green);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .current-user {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary-green), var(--light-green));
+            border-radius: var(--radius);
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .current-user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+            margin: 0 auto 15px;
+            display: block;
+        }
+
+        .current-user h3 {
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .trending-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tag {
+            background: var(--accent-green);
+            color: var(--dark-green);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* ===== POST CREATION ===== */
+        .post-creation {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .post-creation.active {
+            display: block;
+        }
+
+        .post-input {
+            width: 100%;
+            min-height: 100px;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        .post-input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+        }
+
+        .link-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .link-input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        /* ===== POSTS FEED ===== */
+        .posts-feed {
+            display: grid;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .post {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+        }
+
+        .post:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(46, 125, 50, 0.15);
+        }
+
+        .post.reported {
+            opacity: 0.7;
+            background: #ffebee;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .post-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .post-avatar:hover {
+            transform: scale(1.05);
+            border-color: var(--primary-green);
+        }
+
+        .post-user-info {
+            flex: 1;
+        }
+
+        .post-user-info h4 {
+            color: var(--primary-green);
+            cursor: pointer;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+            transition: color 0.3s;
+        }
+
+        .post-user-info h4:hover {
+            color: var(--dark-green);
+            text-decoration: underline;
+        }
+
+        .post-time {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .post-content {
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-size: 1.05rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .post-media {
+            margin: 15px 0;
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .post-media img,
+        .post-media video {
+            max-width: 100%;
+            max-height: 400px;
+            display: block;
+            margin: 0 auto;
+            border-radius: 8px;
+        }
+
+        .post-media a {
+            display: block;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            color: var(--primary-green);
+            text-decoration: none;
+            margin: 5px 0;
+            transition: background 0.3s;
+        }
+
+        .post-media a:hover {
+            background: #e8f5e9;
+        }
+
+        .post-stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .action-btn:hover:not(:disabled) {
+            background: #f5f5f5;
+            color: var(--primary-green);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .action-btn.liked {
+            color: var(--like-color);
+        }
+
+        .action-btn.reported {
+            color: var(--report-color);
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--dark-green);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--accent-green);
+            color: var(--dark-green);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--light-green);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary-green);
+            color: white;
+            padding: 15px 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 400px;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.error {
+            background: #d32f2f;
+        }
+
+        .toast.warning {
+            background: #ff9800;
+        }
+
+        /* ===== LOADING ===== */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+            display: none;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-green);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: var(--radius);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        /* ===== PROFILE PAGE ===== */
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary-green), var(--light-green));
+            padding: 40px 20px;
+            border-radius: var(--radius);
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            margin-bottom: 20px;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary-green);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .nav-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .profile-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .post-actions {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* ===== UTILITY CLASSES ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        .visible {
+            display: block !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-20 {
+            margin-top: 20px;
+        }
+
+        .mb-20 {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <a href="#" class="logo" id="homeLink">
+                <img src="anubis.png" alt="CarbonKind Logo" class="logo-icon">
+                <div>
+                    <h1>CarbonKind</h1>
+                    <p class="tagline">Green social networking for a better planet</p>
+                </div>
+            </a>
+            
+            <!-- Navigation Buttons -->
+            <div class="nav-buttons">
+                <button id="signInBtn" class="nav-btn">Sign In</button>
+                <button id="signUpBtn" class="nav-btn">Sign Up</button>
+                <button id="logoutBtn" class="nav-btn logout hidden">Logout</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar (Visible when logged in) -->
+            <aside class="sidebar hidden" id="sidebar">
+                <div id="currentUserSection" class="current-user hidden">
+                    <img id="currentUserAvatar" src="" alt="User Avatar" class="current-user-avatar">
+                    <h3 id="currentUsername">Loading...</h3>
+                    <p id="currentUserEmail">Loading...</p>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>Trending Topics</h3>
+                    <div class="trending-tags">
+                        <span class="tag">#Sustainability</span>
+                        <span class="tag">#EcoFriendly</span>
+                        <span class="tag">#GreenEnergy</span>
+                        <span class="tag">#ClimateAction</span>
+                        <span class="tag">#ZeroWaste</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>Community Stats</h3>
+                    <div id="communityStats">
+                        <p>Loading community stats...</p>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>Quick Actions</h3>
+                    <button id="createPostBtn" class="btn btn-primary" style="width: 100%; margin-bottom: 10px;">
+                        📝 Create Post
+                    </button>
+                    <button id="viewProfileBtn" class="btn btn-secondary" style="width: 100%;">
+                        👤 View My Profile
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main Feed Area -->
+            <main>
+                <!-- Post Creation (Visible when logged in) -->
+                <section id="postCreation" class="post-creation hidden">
+                    <h3>Create New Post</h3>
+                    <textarea id="postText" class="post-input" 
+                              placeholder="Share your green thoughts, eco-tips, or sustainable projects..."></textarea>
+                    
+                    <div id="linkInputs">
+                        <input type="url" id="linkInput1" class="link-input" 
+                               placeholder="Add image or video URL (optional)">
+                    </div>
+                    <button id="addLinkBtn" class="btn btn-secondary" style="margin-bottom: 15px;">+ Add Another Link</button>
+                    
+                    <div class="post-actions">
+                        <button id="cancelPost" class="btn btn-secondary">Cancel</button>
+                        <button id="submitPost" class="btn btn-primary">🌱 Post to CarbonKind</button>
+                    </div>
+                </section>
+
+                <!-- Profile View (Hidden by default) -->
+                <section id="profileView" class="hidden">
+                    <div class="profile-header">
+                        <img id="profileAvatar" src="" alt="Profile Avatar" class="profile-avatar">
+                        <h2 id="profileUsername">Username</h2>
+                        <p id="profileJoinDate">Joined Recently</p>
+                    </div>
+
+                    <div class="profile-stats">
+                        <div class="stat-card">
+                            <div id="profilePostsCount" class="stat-value">0</div>
+                            <div class="stat-label">Posts</div>
+                        </div>
+                        <div class="stat-card">
+                            <div id="profileLikesCount" class="stat-value">0</div>
+                            <div class="stat-label">Likes Received</div>
+                        </div>
+                        <div class="stat-card">
+                            <div id="profileFollowersCount" class="stat-value">0</div>
+                            <div class="stat-label">Followers</div>
+                        </div>
+                        <div class="stat-card">
+                            <div id="profileFollowingCount" class="stat-value">0</div>
+                            <div class="stat-label">Following</div>
+                        </div>
+                    </div>
+
+                    <h3 class="mb-20" id="profilePostsTitle">User's Posts</h3>
+                    <div id="profilePostsFeed" class="posts-feed"></div>
+                </section>
+
+                <!-- Main Feed -->
+                <div id="mainFeed">
+                    <h3 class="mb-20">Green Community Feed</h3>
+                    
+                    <!-- Loading Indicator -->
+                    <div id="loadingIndicator" class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading posts from our green community...</p>
+                    </div>
+
+                    <!-- Posts Feed -->
+                    <div id="postsFeed" class="posts-feed"></div>
+
+                    <!-- Empty State -->
+                    <div id="emptyFeed" class="hidden text-center">
+                        <h3>Welcome to CarbonKind! 🌱</h3>
+                        <p>Be the first to share eco-friendly ideas and sustainable living tips.</p>
+                        <p><a href="signup.html" class="nav-btn" style="margin-top: 20px;">Join our green community</a></p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Comment Modal -->
+    <div id="commentModal" class="modal">
+        <div class="modal-content">
+            <h3>Comments</h3>
+            <div id="commentsList" style="max-height: 300px; overflow-y: auto; margin: 20px 0;"></div>
+            <textarea id="commentInput" class="post-input" placeholder="Add a comment..." rows="3"></textarea>
+            <div class="modal-actions">
+                <button id="submitComment" class="btn btn-primary">Post Comment</button>
+                <button id="closeCommentModal" class="btn btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+       const API_BASE = "http://localhost:3000/api"; // Node.js backend
+
+async function loadData() {
+  const res = await fetch(`${API_BASE}/load`);
+  if (!res.ok) throw new Error("Failed to load data");
+  return await res.json();
+}
+
+async function saveData() {
+  await fetch(`${API_BASE}/save`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      posts: allPosts,
+      users: allUsers,
+      likes,
+      comments,
+      reports,
+      follows
+    })
+  });
+} // ============================================
+        // CONFIGURATION & CONSTANTS
+        // ============================================
+        const AVATARS = ['sot1.jpg', 'sot2.jpg', 'sot3.jpg', 'sot4.jpg', 'sot5.jpg'];
+        fetch("/api/save") fetch("/api/load")
+        const REPORT_THRESHOLD = 5;
+        const GIST_FILENAME = 'carbonkind_data.json';
+
+        // ============================================
+        // STATE MANAGEMENT
+        // ============================================
+        let currentUser = JSON.parse(localStorage.getItem('carbonkind_user')) || null;
+        let allPosts = [];
+        let allUsers = [];
+        let likes = [];
+        let comments = [];
+        let reports = [];
+        let follows = [];
+        let currentViewingUserId = null;
+        let currentPostIdForComments = null;
+        
+        // ============================================
+        // BACKEND FUNCTIONS (GitHub Gist)
+        // ============================================
+        async function testBackendConnection() {
+            try {
+                if (GITHUB_TOKEN === "fetch("/api/save")
+fetch("/api/load")") {
+                    if (!backendErrorShown) {
+                        showToast("⚠️ Replace ' fetch("/api/save")
+fetch("/api/load")' with your GitHub Personal Access Token", 'warning');
+                        backendErrorShown = true;
+                    }
+                    return false;
+                }
+                
+                // Try to access GitHub API
+                const response = await fetch('https://api.github.com/user', {
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (response.status === 401) {
+                    if (!backendErrorShown) {
+                        showToast("⚠️ Invalid GitHub Token. Using local storage.", 'warning');
+                        backendErrorShown = true;
+                    }
+                    return false;
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`GitHub API error: ${response.status}`);
+                }
+                
+                return true;
+            } catch (error) {
+                if (!backendErrorShown) {
+                    showToast("⚠️ Backend unavailable. Using local storage.", 'warning');
+                    backendErrorShown = true;
+                }
+                return false;
+            }
+        }
+
+        async function loadFromGist() {
+            try {
+                if (!isBackendWorking) {
+                    // Load from localStorage as fallback
+                    const savedData = localStorage.getItem('carbonkind_app_data');
+                    if (savedData) {
+                        const data = JSON.parse(savedData);
+                        allPosts = data.posts || [];
+                        allUsers = data.users || [];
+                        likes = data.likes || [];
+                        comments = data.comments || [];
+                        reports = data.reports || [];
+                        follows = data.follows || [];
+                    }
+                    return true;
+                }
+
+                // Try to get existing gist
+                const gistId = localStorage.getItem('carbonkind_gist_id');
+                
+                if (gistId) {
+                    const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                        headers: {
+                            'Authorization': `token ${GITHUB_TOKEN}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const gist = await response.json();
+                        const content = gist.files[GIST_FILENAME]?.content;
+                        if (content) {
+                            const data = JSON.parse(content);
+                            allPosts = data.posts || [];
+                            allUsers = data.users || [];
+                            likes = data.likes || [];
+                            comments = data.comments || [];
+                            reports = data.reports || [];
+                            follows = data.follows || [];
+                        }
+                    }
+                }
+
+                // Filter out posts with too many reports
+                allPosts = allPosts.filter(post => {
+                    const postReports = reports.filter(r => r.postId === post.id);
+                    return postReports.length < REPORT_THRESHOLD;
+                });
+                
+                return true;
+            } catch (error) {
+                isBackendWorking = false;
+                
+                // Load from localStorage as fallback
+                const savedData = localStorage.getItem('carbonkind_app_data');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    allPosts = data.posts || [];
+                    allUsers = data.users || [];
+                    likes = data.likes || [];
+                    comments = data.comments || [];
+                    reports = data.reports || [];
+                    follows = data.follows || [];
+                }
+                return true;
+            }
+        }
+
+        async function saveToGist() {
+            try {
+                const data = {
+                    posts: allPosts,
+                    users: allUsers,
+                    likes: likes,
+                    comments: comments,
+                    reports: reports,
+                    follows: follows,
+                    lastUpdated: new Date().toISOString()
+                };
+
+                // Save to localStorage first
+                localStorage.setItem('carbonkind_app_data', JSON.stringify(data));
+
+                if (!isBackendWorking) {
+                    return true;
+                }
+
+                const gistId = localStorage.getItem('carbonkind_gist_id');
+                const gistData = {
+                    files: {
+                        [GIST_FILENAME]: {
+                            content: JSON.stringify(data, null, 2)
+                        }
+                    }
+                };
+
+                if (gistId) {
+                    // Update existing gist
+                    await fetch(`https://api.github.com/gists/${gistId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Authorization': `token ${GITHUB_TOKEN}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(gistData)
+                    });
+                } else {
+                    // Create new gist
+                    const response = await fetch('https://api.github.com/gists', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `token ${GITHUB_TOKEN}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            ...gistData,
+                            description: 'CarbonKind Social Network Data',
+                            public: false
+                        })
+                    });
+
+                    if (response.ok) {
+                        const gist = await response.json();
+                        localStorage.setItem('carbonkind_gist_id', gist.id);
+                    }
+                }
+                
+                return true;
+            } catch (error) {
+                isBackendWorking = false;
+                return false;
+            }
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.innerHTML = `
+                <span>${type === 'success' ? '✅' : type === 'error' ? '❌' : '⚠️'}</span>
+                <span>${message}</span>
+            `;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+
+        function extractLinks(text) {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.match(urlRegex) || [];
+        }
+
+        function getAdditionalLinks() {
+            const links = [];
+            const linkInputs = document.querySelectorAll('.link-input');
+            linkInputs.forEach(input => {
+                if (input.value.trim()) {
+                    links.push(input.value.trim());
+                }
+            });
+            return links;
+        }
+
+        function isValidImageUrl(url) {
+            return /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(url);
+        }
+
+        function isValidVideoUrl(url) {
+            return /\.(mp4|webm|ogg|mov|avi|mpg|mpeg)$/i.test(url);
+        }
+
+        function renderMedia(links) {
+            if (!links || links.length === 0) return '';
+            
+            let mediaHtml = '';
+            links.forEach(link => {
+                if (isValidImageUrl(link)) {
+                    mediaHtml += `<div class="post-media"><img src="${link}" alt="Post image" onerror="this.style.display='none'"></div>`;
+                } else if (isValidVideoUrl(link)) {
+                    mediaHtml += `<div class="post-media"><video src="${link}" controls></video></div>`;
+                } else {
+                    mediaHtml += `<div class="post-media"><a href="${link}" target="_blank">🔗 ${link}</a></div>`;
+                }
+            });
+            
+            return mediaHtml;
+        }
+
+        // ============================================
+        // POST FUNCTIONS
+        // ============================================
+        function createPost() {
+            if (!currentUser) {
+                window.location.href = 'signup.html';
+                return;
+            }
+
+            const text = document.getElementById('postText').value.trim();
+            if (!text) {
+                showToast('Please enter some text for your post', 'error');
+                return;
+            }
+
+            // Extract links from text and additional link inputs
+            const textLinks = extractLinks(text);
+            const additionalLinks = getAdditionalLinks();
+            const allLinks = [...textLinks, ...additionalLinks];
+
+            const post = {
+                id: Date.now().toString(),
+                userId: currentUser.id,
+                username: currentUser.username,
+                avatar: currentUser.avatar,
+                text: text,
+                links: allLinks,
+                timestamp: new Date().toISOString()
+            };
+
+            allPosts.unshift(post);
+            saveData();
+            
+            // Clear form
+            document.getElementById('postText').value = '';
+            document.querySelectorAll('.link-input').forEach((input, index) => {
+                if (index > 0) input.parentNode.removeChild(input);
+            });
+            document.getElementById('linkInput1').value = '';
+            
+            showToast('Post created successfully!', 'success');
+            showMainFeed();
+            renderPosts();
+        }
+
+        function likePost(postId) {
+            if (!currentUser) {
+                window.location.href = 'signup.html';
+                return;
+            }
+
+            const existingLike = likes.find(like => 
+                like.postId === postId && like.userId === currentUser.id
+            );
+
+            if (existingLike) {
+                // Unlike
+                likes = likes.filter(like => like !== existingLike);
+                showToast('Post unliked', 'success');
+            } else {
+                // Like
+                likes.push({
+                    id: Date.now().toString(),
+                    postId: postId,
+                    userId: currentUser.id,
+                    timestamp: new Date().toISOString()
+                });
+                showToast('Post liked!', 'success');
+            }
+
+            saveToGist();
+            renderPosts();
+        }
+
+        function reportPost(postId) {
+            if (!currentUser) {
+                window.location.href = 'signup.html';
+                return;
+            }
+
+            const existingReport = reports.find(report => 
+                report.postId === postId && report.userId === currentUser.id
+            );
+
+            if (existingReport) {
+                showToast('You have already reported this post', 'warning');
+                return;
+            }
+
+            reports.push({
+                id: Date.now().toString(),
+                postId: postId,
+                userId: currentUser.id,
+                timestamp: new Date().toISOString()
+            });
+
+            // Check if post should be removed
+            const postReports = reports.filter(r => r.postId === postId);
+            if (postReports.length >= REPORT_THRESHOLD) {
+                allPosts = allPosts.filter(post => post.id !== postId);
+                showToast('Post removed due to multiple reports', 'warning');
+            } else {
+                showToast('Post reported. Thank you for keeping CarbonKind safe.', 'success');
+            }
+
+            saveToGist();
+            renderPosts();
+        }
+
+        function addComment() {
+            if (!currentUser) {
+                window.location.href = 'signup.html';
+                return;
+            }
+
+            const text = document.getElementById('commentInput').value.trim();
+            if (!text) {
+                showToast('Please enter a comment', 'error');
+                return;
+            }
+
+            const comment = {
+                id: Date.now().toString(),
+                postId: currentPostIdForComments,
+                userId: currentUser.id,
+                username: currentUser.username,
+                avatar: currentUser.avatar,
+                text: text,
+                timestamp: new Date().toISOString()
+            };
+
+            comments.push(comment);
+            saveToGist();
+            
+            // Clear input
+            document.getElementById('commentInput').value = '';
+            
+            renderComments(currentPostIdForComments);
+            showToast('Comment added', 'success');
+        }
+
+        // ============================================
+        // USER FUNCTIONS
+        // ============================================
+        function followUser(targetUserId) {
+            if (!currentUser) {
+                window.location.href = 'signup.html';
+                return;
+            }
+
+            if (currentUser.id === targetUserId) {
+                showToast('You cannot follow yourself', 'warning');
+                return;
+            }
+
+            const existingFollow = follows.find(follow => 
+                follow.followerId === currentUser.id && follow.followingId === targetUserId
+            );
+
+            if (existingFollow) {
+                // Unfollow
+                follows = follows.filter(follow => follow !== existingFollow);
+                showToast('Unfollowed user', 'success');
+            } else {
+                // Follow
+                follows.push({
+                    id: Date.now().toString(),
+                    followerId: currentUser.id,
+                    followingId: targetUserId,
+                    timestamp: new Date().toISOString()
+                });
+                showToast('User followed', 'success');
+            }
+
+            saveToGist();
+            renderPosts();
+        }
+
+        function getUserStats(userId) {
+            const userPosts = allPosts.filter(post => post.userId === userId);
+            const userLikes = likes.filter(like => {
+                const post = allPosts.find(p => p.id === like.postId);
+                return post && post.userId === userId;
+            });
+            const userFollowers = follows.filter(follow => follow.followingId === userId);
+            const userFollowing = follows.filter(follow => follow.followerId === userId);
+            const userReports = reports.filter(report => {
+                const post = allPosts.find(p => p.id === report.postId);
+                return post && post.userId === userId;
+            });
+
+            return {
+                posts: userPosts.length,
+                likesReceived: userLikes.length,
+                followers: userFollowers.length,
+                following: userFollowing.length,
+                reports: userReports.length
+            };
+        }
+
+        // ============================================
+        // RENDERING FUNCTIONS
+        // ============================================
+        function renderPosts(postsToRender = allPosts) {
+            const postsFeed = document.getElementById('postsFeed');
+            const profilePostsFeed = document.getElementById('profilePostsFeed');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            
+            loadingIndicator.classList.remove('active');
+            
+            if (postsToRender.length === 0) {
+                if (currentViewingUserId) {
+                    profilePostsFeed.innerHTML = '<div class="text-center"><p>No posts yet.</p></div>';
+                } else {
+                    postsFeed.innerHTML = '';
+                    document.getElementById('emptyFeed').classList.remove('hidden');
+                }
+                return;
+            }
+            
+            document.getElementById('emptyFeed').classList.add('hidden');
+
+            const postsHtml = postsToRender.map(post => {
+                const postLikes = likes.filter(like => like.postId === post.id);
+                const postComments = comments.filter(comment => comment.postId === post.id);
+                const postReports = reports.filter(report => report.postId === post.id);
+                const hasLiked = currentUser ? postLikes.some(like => like.userId === currentUser.id) : false;
+                const hasReported = currentUser ? postReports.some(report => report.userId === currentUser.id) : false;
+                const isFollowing = currentUser ? follows.some(follow => 
+                    follow.followerId === currentUser.id && follow.followingId === post.userId
+                ) : false;
+                const isCurrentUserPost = currentUser && currentUser.id === post.userId;
+
+                return `
+                    <div class="post ${postReports.length >= REPORT_THRESHOLD ? 'reported' : ''}">
+                        <div class="post-header">
+                            <img src="${post.avatar}" alt="${post.username}" class="post-avatar" 
+                                 onclick="viewProfile('${post.userId}')">
+                            <div class="post-user-info">
+                                <h4 onclick="viewProfile('${post.userId}')">${post.username}</h4>
+                                <div class="post-time">${formatDate(post.timestamp)}</div>
+                            </div>
+                        </div>
+                        <div class="post-content">${post.text.replace(/\n/g, '<br>')}</div>
+                        ${renderMedia(post.links)}
+                        <div class="post-stats">
+                            <span>${postLikes.length} ${postLikes.length === 1 ? 'like' : 'likes'}</span>
+                            <span>${postComments.length} ${postComments.length === 1 ? 'comment' : 'comments'}</span>
+                            ${postReports.length > 0 ? `<span>${postReports.length} reports</span>` : ''}
+                        </div>
+                        <div class="post-actions">
+                            <button class="action-btn ${hasLiked ? 'liked' : ''}" 
+                                    onclick="likePost('${post.id}')"
+                                    ${!currentUser ? 'disabled' : ''}>
+                                ${hasLiked ? '❤️' : '🤍'} Like
+                            </button>
+                            <button class="action-btn" 
+                                    onclick="openComments('${post.id}')"
+                                    ${!currentUser ? 'disabled' : ''}>
+                                💬 Comment (${postComments.length})
+                            </button>
+                            ${currentUser && !isCurrentUserPost ? `
+                                <button class="action-btn ${isFollowing ? 'followed' : ''}" 
+                                        onclick="followUser('${post.userId}')">
+                                    ${isFollowing ? '✓ Following' : '➕ Follow'}
+                                </button>
+                            ` : ''}
+                            <button class="action-btn ${hasReported ? 'reported' : ''}" 
+                                    onclick="reportPost('${post.id}')"
+                                    ${!currentUser || isCurrentUserPost ? 'disabled' : ''}>
+                                ⚠️ Report
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (currentViewingUserId) {
+                profilePostsFeed.innerHTML = postsHtml;
+            } else {
+                postsFeed.innerHTML = postsHtml;
+            }
+        }
+
+        function renderComments(postId) {
+            const commentsList = document.getElementById('commentsList');
+            const postComments = comments.filter(comment => comment.postId === postId).sort((a, b) => 
+                new Date(b.timestamp) - new Date(a.timestamp)
+            );
+            
+            commentsList.innerHTML = postComments.length === 0 
+                ? '<p>No comments yet. Be the first to comment!</p>'
+                : postComments.map(comment => `
+                    <div style="margin-bottom: 15px; padding: 10px; background: #f5f9f6; border-radius: 8px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <img src="${comment.avatar}" alt="${comment.username}" 
+                                 style="width: 30px; height: 30px; border-radius: 50%; cursor: pointer;"
+                                 onclick="viewProfile('${comment.userId}')">
+                            <div>
+                                <strong style="color: var(--primary-green); cursor: pointer;"
+                                       onclick="viewProfile('${comment.userId}')">${comment.username}</strong>
+                                <div style="color: var(--text-secondary); font-size: 0.8rem;">
+                                    ${formatDate(comment.timestamp)}
+                                </div>
+                            </div>
+                        </div>
+                        <div>${comment.text.replace(/\n/g, '<br>')}</div>
+                    </div>
+                `).join('');
+        }
+
+        function viewProfile(userId) {
+            currentViewingUserId = userId;
+            const user = allUsers.find(u => u.id === userId);
+            
+            if (!user) {
+                showToast('User not found', 'error');
+                return;
+            }
+
+            const stats = getUserStats(userId);
+
+            // Update profile view
+            document.getElementById('profileView').classList.remove('hidden');
+            document.getElementById('mainFeed').classList.add('hidden');
+            document.getElementById('profileAvatar').src = user.avatar;
+            document.getElementById('profileUsername').textContent = user.username;
+            document.getElementById('profileJoinDate').textContent = `Joined ${formatDate(user.joinDate)}`;
+            document.getElementById('profilePostsCount').textContent = stats.posts;
+            document.getElementById('profileLikesCount').textContent = stats.likesReceived;
+            document.getElementById('profileFollowersCount').textContent = stats.followers;
+            document.getElementById('profileFollowingCount').textContent = stats.following;
+            
+            if (currentUser && userId === currentUser.id) {
+                document.getElementById('profilePostsTitle').textContent = 'My Posts';
+            } else {
+                document.getElementById('profilePostsTitle').textContent = `${user.username}'s Posts`;
+            }
+
+            // Show user's posts
+            const userPosts = allPosts.filter(post => post.userId === userId);
+            renderPosts(userPosts);
+        }
+
+        function showMainFeed() {
+            document.getElementById('profileView').classList.add('hidden');
+            document.getElementById('mainFeed').classList.remove('hidden');
+            document.getElementById('postCreation').classList.add('hidden');
+            currentViewingUserId = null;
+            renderPosts();
+        }
+
+        function showPostCreation() {
+            if (!currentUser) {
+                window.location.href = 'signup.html';
+                return;
+            }
+            document.getElementById('profileView').classList.add('hidden');
+            document.getElementById('mainFeed').classList.remove('hidden');
+            document.getElementById('postCreation').classList.remove('hidden');
+            document.getElementById('postText').focus();
+        }
+
+        // ============================================
+        // UI UPDATE FUNCTIONS
+        // ============================================
+        function updateUI() {
+            const signInBtn = document.getElementById('signInBtn');
+            const signUpBtn = document.getElementById('signUpBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const sidebar = document.getElementById('sidebar');
+            const currentUserSection = document.getElementById('currentUserSection');
+
+            if (currentUser) {
+                // User is logged in
+                signInBtn.classList.add('hidden');
+                signUpBtn.classList.add('hidden');
+                logoutBtn.classList.remove('hidden');
+                sidebar.classList.remove('hidden');
+                currentUserSection.classList.remove('hidden');
+
+                // Update user info
+                document.getElementById('currentUsername').textContent = currentUser.username;
+                document.getElementById('currentUserEmail').textContent = currentUser.email || 'No email';
+                document.getElementById('currentUserAvatar').src = currentUser.avatar;
+
+                // Update community stats
+                const totalUsers = allUsers.length;
+                const totalPosts = allPosts.length;
+                const totalLikes = likes.length;
+                document.getElementById('communityStats').innerHTML = `
+                    <p>👥 ${totalUsers} Users</p>
+                    <p>📝 ${totalPosts} Posts</p>
+                    <p>❤️ ${totalLikes} Likes</p>
+                    <p>💬 ${comments.length} Comments</p>
+                `;
+            } else {
+                // User is not logged in
+                signInBtn.classList.remove('hidden');
+                signUpBtn.classList.remove('hidden');
+                logoutBtn.classList.add('hidden');
+                sidebar.classList.add('hidden');
+                document.getElementById('postCreation').classList.add('hidden');
+                currentUserSection.classList.add('hidden');
+            }
+
+            renderPosts();
+        }
+
+        // ============================================
+        // AUTHENTICATION FUNCTIONS
+        // ============================================
+        function checkAuth() {
+            const user = JSON.parse(localStorage.getItem('carbonkind_user'));
+            
+            if (user && user.id && user.username) {
+                currentUser = user;
+                
+                // Ensure user exists in allUsers
+                if (!allUsers.some(u => u.id === user.id)) {
+                    allUsers.push({
+                        id: user.id,
+                        username: user.username,
+                        avatar: user.avatar || AVATARS[Math.floor(Math.random() * AVATARS.length)],
+                        email: user.email || '',
+                        joinDate: new Date().toISOString()
+                    });
+                    saveToGist();
+                }
+                
+                return true;
+            }
+            
+            return false;
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('carbonkind_user');
+            updateUI();
+            showToast('Logged out successfully', 'success');
+            showMainFeed();
+        }
+
+        // ============================================
+        // EVENT LISTENERS & INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Test backend connection
+            isBackendWorking = await testBackendConnection();
+
+            // Load data from Gist or localStorage
+            document.getElementById('loadingIndicator').classList.add('active');
+            const data = await loadData();  allPosts = data.posts || []; allUsers = data.users || []; likes = data.likes || []; comments = data.comments || []; reports = data.reports || []; follows = data.follows || [];
+            document.getElementById('loadingIndicator').classList.remove('active');
+
+            // Check authentication
+            checkAuth();
+
+            // Set up event listeners
+            document.getElementById('homeLink').addEventListener('click', (e) => {
+                e.preventDefault();
+                showMainFeed();
+            });
+
+            document.getElementById('signInBtn').addEventListener('click', () => {
+                window.location.href = 'signup.html';
+            });
+
+            document.getElementById('signUpBtn').addEventListener('click', () => {
+                window.location.href = 'signup.html';
+            });
+
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+
+            document.getElementById('submitPost').addEventListener('click', createPost);
+
+            document.getElementById('cancelPost').addEventListener('click', showMainFeed);
+
+            document.getElementById('createPostBtn').addEventListener('click', showPostCreation);
+
+            document.getElementById('viewProfileBtn').addEventListener('click', () => {
+                if (currentUser) {
+                    viewProfile(currentUser.id);
+                }
+            });
+
+            document.getElementById('closeCommentModal').addEventListener('click', () => {
+                document.getElementById('commentModal').classList.remove('active');
+            });
+
+            document.getElementById('submitComment').addEventListener('click', addComment);
+
+            document.getElementById('addLinkBtn').addEventListener('click', () => {
+                const linkInputs = document.getElementById('linkInputs');
+                const newInput = document.createElement('input');
+                newInput.type = 'url';
+                newInput.className = 'link-input';
+                newInput.placeholder = 'Add another image or video URL (optional)';
+                linkInputs.appendChild(newInput);
+            });
+
+            // Handle Enter key for post creation
+            document.getElementById('postText').addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    createPost();
+                }
+            });
+
+            document.getElementById('commentInput').addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    addComment();
+                }
+            });
+
+            // Initialize UI
+            updateUI();
+        });
+
+        function openComments(postId) {
+            if (!currentUser) {
+                window.location.href = 'signup.html';
+                return;
+            }
+            
+            currentPostIdForComments = postId;
+            renderComments(postId);
+            document.getElementById('commentModal').classList.add('active');
+            document.getElementById('commentInput').focus();
+        }
+
+        // Make functions globally available for inline onclick handlers
+        window.likePost = likePost;
+        window.reportPost = reportPost;
+        window.openComments = openComments;
+        window.followUser = followUser;
+        window.viewProfile = viewProfile;
+    </script>
+</body>
+                  </html>
